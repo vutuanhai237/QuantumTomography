@@ -1,0 +1,9 @@
+qiskit
+qiskit-aer
+qiskit-ibmq-provider
+qiskit-ignis
+qiskit-nature
+qiskit-terra 
+matplotlib
+tdqm
+pytest
