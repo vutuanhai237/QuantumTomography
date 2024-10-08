@@ -1,4 +1,6 @@
 import tensorflow as tf
+import init
+import numpy as np
 def compilation_trace_fidelity(rho, sigma):
     """Calculating the fidelity metric
 
@@ -48,3 +50,30 @@ def frobenius_norm(rho, sigma):
     #norm = tf.linalg.normalize(diff, ord='fro')
     norm = tf.sqrt(tf.reduce_sum(tf.square(diff)))
     return norm
+
+def trace_Pauli(rho, qubit_index, pauli_matrix):
+    """
+    Compute the trace of the Pauli-Z operator applied to a specific qubit of the density matrix.
+
+    Parameters:
+    rho (numpy.ndarray): The density matrix (2^n x 2^n) where n is the number of qubits.
+    qubit_index (int): The index of the qubit to which the Pauli-Z operator is applied.
+
+    Returns:
+    float: The trace after applying the Pauli-Z operator.
+    """
+    
+    # Ensure the density matrix is a NumPy array
+    rho = np.array(rho, dtype=np.complex128)
+    
+    
+    # Get number of qubits (assuming rho is a 2^n x 2^n matrix)
+    n = int(np.log2(rho.shape[0]))
+    
+    # Create the full operator that applies the Pauli-Z to the specific qubit
+    Z_1 = init.kron_n_identity(n, qubit_index, pauli_matrix)
+    
+    # Calculate the trace
+    trace_result = np.trace(Z_1 @ rho)  # Matrix multiplication
+    return trace_result
+
