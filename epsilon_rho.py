@@ -1,5 +1,5 @@
 import numpy as np
-
+import init
 def calculate_dephasing(input_rho, num_qubits: int, gamma: float): #for verification
     '''
     Calculate rho2 by dephasing
@@ -39,6 +39,24 @@ def calculate_from_unitary(rho, unitary_matrix):
     rho_2 = unitary_matrix  @ rho.data @ np.transpose(np.conjugate(unitary_matrix))
 
     return rho_2
+
+def calculate_from_unitary_dagger(rho, unitary_matrix):
+    '''
+    Calculate rho' by applying U @ rho @ U(dagger)
+    '''
+    rho_2 =  np.transpose(np.conjugate(unitary_matrix)) @ rho @ unitary_matrix 
+
+    return rho_2
+
+def apply_amplitude_noise(input_rho, num_qubits, gamma):
+    rho = input_rho.copy()
+    for k in range(num_qubits):
+        K0_k= np.array([[1, 0], [0, np.sqrt(1 - gamma)]])
+        K1_k= np.array([[0, np.sqrt(gamma)], [0, 0]])
+        K0 = init.kron_n_identity(num_qubits, k, K0_k)
+        K1 = init.kron_n_identity(num_qubits, k, K1_k)
+        rho = K0 @ rho @ np.transpose(np.conjugate(K0)) + K1 @ rho @ np.transpose(np.conjugate(K1))
+    return rho
 
 def calculate_from_kraus_operators(rho, kraus_operators):
     '''

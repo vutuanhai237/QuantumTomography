@@ -69,7 +69,7 @@ def trace_Pauli(rho, qubit_index, pauli_matrix):
     
     # Get number of qubits (assuming rho is a 2^n x 2^n matrix)
     n = int(np.log2(rho.shape[0]))
-    
+
     # Create the full operator that applies the Pauli-Z to the specific qubit
     Z_1 = init.kron_n_identity(n, qubit_index, pauli_matrix)
     
