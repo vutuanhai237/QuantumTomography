@@ -1,7 +1,7 @@
 import tensorflow as tf
 import numpy as np
-import metrics as mtr
-import epsilon_rho
+from . import metrics as mtr
+from . import epsilon_rho as epsilon_rho
 #cost func to compare 2 given rhos
 def cost_frobe(rho, rho_3):
     return tf.square(mtr.frobenius_norm(rho, rho_3))

@@ -1,6 +1,5 @@
-import optimizer as op
+from . import optimizer as op
 import tensorflow as tf
-
 import tensorflow as tf
 
 def isModeValid(mode):
