@@ -39,9 +39,10 @@ def diagonalize_gellmann(gellmann_matrices):
     return eigen_gellmann
 
 
-def generate_measurement_projector_gellmann():
+def generate_measurement_projector_gellmann(num_qubits: int = 1):
     projectors = []
-    eigen_gellmann = diagonalize_gellmann(generate_gellmann_matrices(2)) # ??????
+    d = 2**num_qubits
+    eigen_gellmann = diagonalize_gellmann(generate_gellmann_matrices(d)) # ??????
     for _, eigenvectors in eigen_gellmann:
         for i in range(eigenvectors.shape[1]):  # Each eigenstate
             vi = eigenvectors[:, i].reshape(-1, 1)  # |v_i⟩
