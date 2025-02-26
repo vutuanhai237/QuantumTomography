@@ -1,5 +1,5 @@
 import numpy as np
-import init
+import base.generator as generator
 def calculate_dephasing(input_rho, num_qubits: int, gamma: float): #for verification
     '''
     Calculate rho2 by dephasing
@@ -53,8 +53,8 @@ def apply_amplitude_noise(input_rho, num_qubits, gamma):
     for k in range(num_qubits):
         K0_k= np.array([[1, 0], [0, np.sqrt(1 - gamma)]])
         K1_k= np.array([[0, np.sqrt(gamma)], [0, 0]])
-        K0 = init.kron_n_identity(num_qubits, k, K0_k)
-        K1 = init.kron_n_identity(num_qubits, k, K1_k)
+        K0 = generator.kron_n_identity(num_qubits, k, K0_k)
+        K1 = generator.kron_n_identity(num_qubits, k, K1_k)
         rho = K0 @ rho @ np.transpose(np.conjugate(K0)) + K1 @ rho @ np.transpose(np.conjugate(K1))
     return rho
 
@@ -65,3 +65,27 @@ def calculate_from_kraus_operators(rho, kraus_operators):
     rho_2 = sum(K @ rho @ np.transpose(np.conjugate(K)) for K in kraus_operators)
 
     return rho_2
+
+def calculate_set_from_kraus_operators(kraus_operators, rho_list, epsilon):
+    """Compute rho_f_i = E_rand(sum(K@rho_i@K_dagger))"""
+
+    data = []
+    
+    for i, rho in enumerate(rho_list):
+
+        rho2 = calculate_from_kraus_operators(rho, kraus_operators)
+        data.append(calculate_from_unitary_dagger(rho2, epsilon))
+        
+    return data 
+
+def calculate_set_from_unitary(kraus_operators, rho_list, epsilon):
+    """Compute rho_f_i = E_rand(sum(K@rho_i@K_dagger))"""
+
+    data = []
+    
+    for i, rho in enumerate(rho_list):
+
+        rho2 = calculate_from_kraus_operators(rho, kraus_operators)
+        data.append(calculate_from_unitary_dagger(rho2, epsilon))
+        
+    return data 

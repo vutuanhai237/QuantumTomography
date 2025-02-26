@@ -1,6 +1,23 @@
 import tensorflow as tf
-import init
+import base.generator as generator
 import numpy as np
+
+def mean_fidelity(rho_f_list, rho_list):
+    """Compute mean(Fidelity) metric"""
+
+    fidelity_sum = tf.constant(0.0, dtype=tf.complex128)
+
+    for rho, rho_f in zip(rho_list, rho_f_list):
+        sqrt_rho = tf.linalg.sqrtm(rho)
+        intermediate = sqrt_rho @ rho_f @ sqrt_rho
+
+        fidelity = tf.linalg.trace(tf.linalg.sqrtm(intermediate)) ** 2
+        fidelity_sum += fidelity
+
+    fidelity_avg = fidelity_sum / len(rho_list)
+
+    return fidelity_avg
+
 def compilation_trace_fidelity(rho, sigma):
     """Calculating the fidelity metric
 
@@ -12,21 +29,8 @@ def compilation_trace_fidelity(rho, sigma):
         - float: trace metric has value from 0 to 1
     """
     f = (tf.linalg.sqrtm(rho)) @ sigma @ (tf.linalg.sqrtm(rho))
-
-    '''# Cast to a supported type
-    real_part = tf.math.real(rho_2)
-    imaginary_part = tf.math.imag(rho_2)
-
-    # Check for NaNs in both real and imaginary parts
-    contains_nan_real = tf.reduce_any(tf.math.is_nan(real_part))
-    contains_nan_imag = tf.reduce_any(tf.math.is_nan(imaginary_part))
-
-    contains_nan = contains_nan_real or contains_nan_imag
-
-    if contains_nan == True:
-        rho_2 = rho'''
-
     return tf.linalg.trace(f)
+
 def frobenius_norm(rho, sigma):
     """
     Compute the Frobenius norm between two matrices.
@@ -71,7 +75,7 @@ def trace_Pauli(rho, qubit_index, pauli_matrix):
     n = int(np.log2(rho.shape[0]))
 
     # Create the full operator that applies the Pauli-Z to the specific qubit
-    Z_1 = init.kron_n_identity(n, qubit_index, pauli_matrix)
+    Z_1 = generator.kron_n_identity(n, qubit_index, pauli_matrix)
     
     # Calculate the trace
     trace_result = np.trace(Z_1 @ rho)  # Matrix multiplication
