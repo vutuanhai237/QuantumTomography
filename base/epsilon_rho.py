@@ -36,7 +36,7 @@ def calculate_from_unitary(rho, unitary_matrix):
     '''
     Calculate rho' by applying U @ rho @ U(dagger)
     '''
-    rho_2 = unitary_matrix  @ rho.data @ np.transpose(np.conjugate(unitary_matrix))
+    rho_2 = unitary_matrix  @ rho @ np.transpose(np.conjugate(unitary_matrix))
 
     return rho_2
 
@@ -78,14 +78,14 @@ def calculate_set_from_kraus_operators(kraus_operators, rho_list, epsilon):
         
     return data 
 
-def calculate_set_from_unitary(kraus_operators, rho_list, epsilon):
-    """Compute rho_f_i = E_rand(sum(K@rho_i@K_dagger))"""
+def calculate_set_from_unitary_dagger(unitary, rho2_list):
+    """Compute rho_f_i = E_rand^-1(rho2)"""
 
     data = []
     
-    for i, rho in enumerate(rho_list):
+    for i, rho2 in enumerate(rho2_list):
 
-        rho2 = calculate_from_kraus_operators(rho, kraus_operators)
-        data.append(calculate_from_unitary_dagger(rho2, epsilon))
+        rho3 = calculate_from_unitary_dagger(rho2, unitary)
+        data.append(rho3)
         
     return data 

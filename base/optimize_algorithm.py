@@ -29,6 +29,26 @@ def optimize_adam_kraus_set(rho_list, unitary, kraus_operators, num_qubits, alph
 
     return kraus_operators_copy, cost_dict
 
+def optimize_adam_unitary_dagger_set(rho_list, rho2_list, unitary, alpha=0.001, beta1 = 0.9, beta2 = 0.999, epsilon = 1e-8, num_loop=1000):
+    unitary_copy = tf.identity(unitary)
+    
+    # Initialize m, v to zero matrices
+    m = tf.zeros_like(unitary_copy, dtype=tf.complex128)
+    v = tf.zeros_like(unitary_copy, dtype=tf.complex128)
+    
+    # Initialize a dictionary to track cost at each iteration
+    cost_dict = []
+
+    # Try looping manually
+    for i in range(num_loop):
+        # Update Kraus Operators
+        unitary_copy, m, v, cost = op.calculate_adam_unitary_dagger_set(rho_list=rho_list, rho2_list=rho2_list, unitary=unitary_copy, m = m, v = v, t = i, alpha=alpha, beta1=beta1, beta2=beta2, epsilon=epsilon)
+
+        # Store the cost for this iteration
+        cost_dict.append(cost.numpy().real)
+
+    return unitary_copy, cost_dict
+
 def optimize_adam_unitary_dagger(rho, rho2, unitary, alpha=0.001, beta1=0.9, beta2=0.999, epsilon = 1e-8, num_loop=1000):
     unitary_copy = tf.identity(unitary)
     

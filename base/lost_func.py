@@ -10,7 +10,7 @@ def diff_MSE(rho_f_list, rho_list):
     for rho, rho_f in zip(rho_list, rho_f_list):
         # Compute the squared difference between the density matrices
         difference = rho - rho_f
-        mse = tf.reduce_sum(tf.abs(difference)**2)  # MSE on matrix elements
+        mse = tf.reduce_sum(tf.abs(difference)**2)
         mse_sum += mse
 
     mse_avg = mse_sum / len(rho_list)
