@@ -1,8 +1,6 @@
 from . import optimizer as op
 from . import generator_haar
 import tensorflow as tf
-import base.metrics as metrics
-import base.epsilon_rho as epsilon_rho
 
 def optimize_adam_kraus_set(rho_list, unitary, kraus_operators, num_qubits, alpha=0.001, beta1 = 0.9, beta2 = 0.999, epsilon = 1e-8, num_loop=1000):
     kraus_operators_copy = tf.identity(kraus_operators)
@@ -43,6 +41,8 @@ def optimize_adam_unitary_dagger_set(rho_list, rho2_list, unitary, alpha=0.001, 
     for i in range(num_loop):
         # Update Kraus Operators
         unitary_copy, m, v, cost = op.calculate_adam_unitary_dagger_set(rho_list=rho_list, rho2_list=rho2_list, unitary=unitary_copy, m = m, v = v, t = i, alpha=alpha, beta1=beta1, beta2=beta2, epsilon=epsilon)
+
+        unitary_copy = generator_haar.normalize_unitary(unitary_copy)
 
         # Store the cost for this iteration
         cost_dict.append(cost.numpy().real)

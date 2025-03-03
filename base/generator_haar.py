@@ -81,6 +81,11 @@ def normalize_kraus(kraus_operators):
     sqrt_inv = tf.linalg.inv(tf.linalg.sqrtm(summation))  # (Σ K_i† K_i)^(-1/2)
     return [K @ sqrt_inv for K in kraus_operators]
 
+def normalize_unitary(matrix):  
+    # Perform QR decomposition to get the unitary matrix Q
+    Q, _ = np.linalg.qr(matrix)
+    return Q
+
 def generate_choi_matrix(U, d):
     """Construct the Choi matrix from a Haar random unitary U."""
     choi = np.zeros((d**2,d**2), dtype=complex)
