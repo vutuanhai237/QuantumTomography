@@ -1,1 +1,1 @@
-tf.Tensor((0.863849161722734-4.602167608843346e-06j), shape=(), dtype=complex128)
+tf.Tensor((0.9141594658804424-8.214507494227103e-07j), shape=(), dtype=complex128)
