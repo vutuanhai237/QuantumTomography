@@ -54,8 +54,10 @@ def generate_rho_haar(n):
 def generate_n_qubits_rho_haar(n):
     """Generate 6^n probe states for an n-qubit system."""
     density_matrices = []
-
-    for _ in range(6**n):
+    num_rho = 6**n
+    if (num_rho >= 10000):
+        num_rho = 10000
+    for _ in range(num_rho):
         # Construct the density matrix rho
         rho = generate_rho_haar(n)
         
@@ -64,20 +66,35 @@ def generate_n_qubits_rho_haar(n):
     
     return density_matrices
 
-def generate_kraus_operators(unitary):
-    '''Create a set of Kraus Operators from the input unitary matrix, using QR decomposition'''
-    kraus_ops = []
-    Q, R = qr(unitary)
+# def generate_kraus_operators(unitary):
+#     '''Create a set of Kraus Operators from the input unitary matrix, using QR decomposition'''
+#     kraus_ops = []
+#     Q, R = qr(unitary)
 
-    #Q: a 2^N x 2^N matrix, N is the number of qubits
-    for q in Q:
-        q = np.expand_dims(q, 1)
-        kraus_ops.append(q @ np.transpose(np.conjugate(q)))
-    return tf.convert_to_tensor(kraus_ops)
+#     #Q: a 2^N x 2^N matrix, N is the number of qubits
+#     for q in Q:
+#         q = np.expand_dims(q, 1)
+#         kraus_ops.append(q @ np.transpose(np.conjugate(q)))
+#     return tf.convert_to_tensor(kraus_ops)
+
+def generate_kraus_operators(dim, num_operators):
+    max_operators = dim**2
+    num_operators = min(num_operators, max_operators)
+    kraus_operators = []
+
+    for _ in range(num_operators):
+        mat = random_unitary(dim)
+        q, r = np.linalg.qr(mat)
+        
+        kraus_operators.append(q)
+    
+    kraus_operators = normalize_kraus(kraus_operators)
+    
+    return kraus_operators
 
 def normalize_kraus(kraus_operators):
     """Ensure Kraus operators satisfy Σ K_i^† K_i = I"""
-    summation = sum(tf.linalg.adjoint(K) @ K for K in kraus_operators)
+    summation = sum(tf.matmul(tf.linalg.adjoint(K), K) for K in kraus_operators)
     sqrt_inv = tf.linalg.inv(tf.linalg.sqrtm(summation))  # (Σ K_i† K_i)^(-1/2)
     return [K @ sqrt_inv for K in kraus_operators]
 

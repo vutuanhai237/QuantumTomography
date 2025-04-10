@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import base.lost_func as lost_func
 from . import epsilon_rho as epsilon_rho
-
+import cupy as cp
 
 def calculate_adam_kraus_set(rho_list, unitary, kraus_operators, m, v, t, alpha=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8, mode = 'fidelity'):
     tensorKraus = tf.Variable(kraus_operators, dtype=tf.complex128)
@@ -19,9 +19,11 @@ def calculate_adam_kraus_set(rho_list, unitary, kraus_operators, m, v, t, alpha=
     # Calculate the gradient
     c = tape.gradient(f, tensorKraus)
     
+    c_tp_conj = (tf.transpose(tf.math.conj(c), perm=[0, 2, 1]))
+    tensorKraus_tp_conj = (tf.transpose(tf.math.conj(tensorKraus), perm=[0, 2, 1]))
 
     # Calculate projection
-    proj = c - tensorKraus @ (np.transpose(np.conjugate(c)) @ tensorKraus + np.transpose(np.conjugate(tensorKraus)) @ c) / 2
+    proj = c - tf.matmul(tensorKraus, tf.matmul(c_tp_conj, tensorKraus) + tf.matmul(tensorKraus_tp_conj, c)) / 2
 
     # Update Adam variables
     m = beta1 * m + (1 - beta1) * proj
@@ -49,8 +51,8 @@ def calculate_adam_unitary_dagger_set(rho_list, rho2_list, unitary, m, v, t, alp
     c = tape.gradient(f, tensorUnitary)
 
     # Calculate projection
-    proj = c - tensorUnitary @ (np.transpose(np.conjugate(c)) @ tensorUnitary + np.transpose(np.conjugate(tensorUnitary)) @ c) / 2
-
+    #proj = c - tensorUnitary @ (cp.transpose(cp.conjugate(c)) @ tensorUnitary + cp.transpose(cp.conjugate(tensorUnitary)) @ c) / 2
+    proj = c - tf.matmul(tensorUnitary, tf.matmul(tf.transpose(tf.math.conj(c)), tensorUnitary) + tf.transpose(tf.math.conj(tensorUnitary)) @ c) / 2
     # Update Adam variables
     m = beta1 * m + (1 - beta1) * proj
     v = beta2 * v + (1 - beta2) * tf.math.square(proj)
@@ -77,7 +79,7 @@ def calculate_adam_unitary_dagger(rho, rho2, unitary, m, v, t, alpha=0.001, beta
     c = tape.gradient(f, tensorUnitary)
 
     # Calculate projection
-    proj = c - tensorUnitary @ (np.transpose(np.conjugate(c)) @ tensorUnitary + np.transpose(np.conjugate(tensorUnitary)) @ c) / 2
+    proj = c - tensorUnitary @ (cp.transpose(cp.conjugate(c)) @ tensorUnitary + cp.transpose(cp.conjugate(tensorUnitary)) @ c) / 2
 
     # Update Adam variables
     m = beta1 * m + (1 - beta1) * proj
@@ -108,7 +110,7 @@ def calculate_adam_kraus(rho, kraus_operators, unitary, m, v, t, alpha=0.001, be
     c = tape.gradient(f, tensorKraus)
 
     # Calculate projection
-    proj = c - tensorKraus @ (np.transpose(np.conjugate(c)) @ tensorKraus + np.transpose(np.conjugate(tensorKraus)) @ c) / 2
+    proj = c - tensorKraus @ (cp.transpose(cp.conjugate(c)) @ tensorKraus + cp.transpose(cp.conjugate(tensorKraus)) @ c) / 2
 
     # Update Adam variables
     m = beta1 * m + (1 - beta1) * proj
@@ -136,7 +138,7 @@ def calculate_derivative_kraus(rho, kraus_operators, unitary, num_qubits, alpha=
     c = tf.reshape(c, (2**num_qubits, 2**num_qubits, 2**num_qubits))
 
     # Calculate projection
-    proj = c - tensorKraus @ (np.transpose(np.conjugate(c)) @ tensorKraus + np.transpose(np.conjugate(tensorKraus)) @ c) / 2
+    proj = c - tensorKraus @ (cp.transpose(cp.conjugate(c)) @ tensorKraus + cp.transpose(cp.conjugate(tensorKraus)) @ c) / 2
 
     # Update the Kraus operators
     updated_kraus_operators = tensorKraus - alpha * proj
@@ -152,7 +154,7 @@ def calculate_derivative_unitary_dagger(rho, rho2, unitary_matrix, alpha=0.001):
     c = tape.gradient(f, tensorUnitary)
 
     # Calculate projection
-    proj = c - tensorUnitary @ (np.transpose(np.conjugate(c)) @ tensorUnitary + np.transpose(np.conjugate(tensorUnitary)) @ c) / 2
+    proj = c - tensorUnitary @ (cp.transpose(cp.conjugate(c)) @ tensorUnitary + cp.transpose(cp.conjugate(tensorUnitary)) @ c) / 2
 
     # Update the Kraus operators
     updated_unitary = tensorUnitary - alpha * proj

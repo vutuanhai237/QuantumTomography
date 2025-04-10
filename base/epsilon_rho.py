@@ -1,4 +1,6 @@
 import numpy as np
+import cupy as cp
+import tensorflow as tf
 import base.generator as generator
 def calculate_dephasing(input_rho, num_qubits: int, gamma: float): #for verification
     '''
@@ -8,27 +10,27 @@ def calculate_dephasing(input_rho, num_qubits: int, gamma: float): #for verifica
     # Convert DensityMatrix to numpy array
     rho = input_rho.data
     # Define the Pauli-Z matrix
-    sigma_z = np.array([[1, 0], [0, -1]])
+    sigma_z = cp.array([[1, 0], [0, -1]])
 
     # Calculate the factors
-    alpha = (1 + np.sqrt(1 - gamma)) * 1/2
-    beta = (1 - np.sqrt(1 - gamma)) * 1/2
+    alpha = (1 + cp.sqrt(1 - gamma)) * 1/2
+    beta = (1 - cp.sqrt(1 - gamma)) * 1/2
     
     # n qubits => qubit thứ n => I @ I @ .... sigma_z (n) @....I
     # Loop for multiple qubits
     for i in range(num_qubits):
         # Create the tensor product of Pauli-Z matrices for all qubits
-        sigma_z_i = np.eye(1)
+        sigma_z_i = cp.eye(1)
         for j in range(num_qubits):
             if j == i:
-                sigma_z_i = np.kron(sigma_z_i, sigma_z)
+                sigma_z_i = cp.kron(sigma_z_i, sigma_z)
             else:
-                sigma_z_i = np.kron(sigma_z_i, np.eye(2))
+                sigma_z_i = cp.kron(sigma_z_i, cp.eye(2))
         
         # Apply the dephasing formula
         rho = alpha * rho + beta * (sigma_z_i @ rho @ sigma_z_i)
         # Normalize the density matrix (optional, depending on the context)
-        # rho /= np.trace(rho)
+        # rho /= cp.trace(rho)
 
     return rho
 
@@ -36,7 +38,9 @@ def calculate_from_unitary(rho, unitary_matrix):
     '''
     Calculate rho' by applying U @ rho @ U(dagger)
     '''
-    rho_2 = unitary_matrix  @ rho @ np.transpose(np.conjugate(unitary_matrix))
+
+    rho_2 = tf.matmul(tf.matmul(unitary_matrix, rho), tf.transpose(tf.math.conj(unitary_matrix)))
+    #rho_2 = unitary_matrix  @ rho @ cp.transpose(cp.conjugate(unitary_matrix))
 
     return rho_2
 
@@ -44,25 +48,29 @@ def calculate_from_unitary_dagger(rho, unitary_matrix):
     '''
     Calculate rho' by applying U @ rho @ U(dagger)
     '''
-    rho_2 =  np.transpose(np.conjugate(unitary_matrix)) @ rho @ unitary_matrix 
+
+    rho_2 = tf.matmul(tf.matmul(tf.transpose(tf.math.conj(unitary_matrix)), rho), unitary_matrix)
+    
+    #rho_2 =  cp.transpose(cp.conjugate(unitary_matrix)) @ rho @ unitary_matrix 
 
     return rho_2
 
 def apply_amplitude_noise(input_rho, num_qubits, gamma):
     rho = input_rho.copy()
     for k in range(num_qubits):
-        K0_k= np.array([[1, 0], [0, np.sqrt(1 - gamma)]])
-        K1_k= np.array([[0, np.sqrt(gamma)], [0, 0]])
+        K0_k= cp.array([[1, 0], [0, cp.sqrt(1 - gamma)]])
+        K1_k= cp.array([[0, cp.sqrt(gamma)], [0, 0]])
         K0 = generator.kron_n_identity(num_qubits, k, K0_k)
         K1 = generator.kron_n_identity(num_qubits, k, K1_k)
-        rho = K0 @ rho @ np.transpose(np.conjugate(K0)) + K1 @ rho @ np.transpose(np.conjugate(K1))
+        rho = K0 @ rho @ cp.transpose(cp.conjugate(K0)) + K1 @ rho @ cp.transpose(cp.conjugate(K1))
     return rho
 
 def calculate_from_kraus_operators(rho, kraus_operators):
     '''
     Calculate rho' by applying K @ rho @ K(dagger)
     '''
-    rho_2 = sum(K @ rho @ np.transpose(np.conjugate(K)) for K in kraus_operators)
+
+    rho_2 = sum(tf.matmul(tf.matmul(K, rho), tf.transpose(tf.math.conj(K))) for K in kraus_operators)
 
     return rho_2
 

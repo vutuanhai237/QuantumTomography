@@ -21,9 +21,6 @@ def optimize_adam_kraus_set(rho_list, unitary, kraus_operators, num_qubits, alph
         kraus_operators_copy = generator_haar.normalize_kraus(kraus_operators_copy)
         # Store the cost for this iteration
         cost_dict.append(cost.numpy().real)
-        # Reshape the matrices
-        m = tf.reshape(m, (2**num_qubits, 2**num_qubits, 2**num_qubits))
-        v = tf.reshape(v, (2**num_qubits, 2**num_qubits, 2**num_qubits))
 
     return kraus_operators_copy, cost_dict
 

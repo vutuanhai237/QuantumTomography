@@ -1,4 +1,5 @@
 import numpy as np
+import cupy as cp
 import tensorflow as tf
 from qoop.core import ansatz
 
@@ -14,7 +15,7 @@ def create_circuit(num_qubits: int):
     #Assign random parameter
     circuit = ansatz.graph(num_qubits=num_qubits)
     num_params = circuit.num_parameters
-    x0 = 2 * np.pi * np.random.random(num_params)
+    x0 = 2 * cp.pi * cp.random.random(num_params)
     circuit = circuit.assign_parameters(dict(zip(circuit.parameters, x0)))
     return circuit
 
@@ -22,10 +23,10 @@ def kron_n_identity(n, j, matrix):
     """
     Kronecker product of n identity matrices, except at position j where we place the matrix.
     """
-    identity = np.eye(2)
+    identity = cp.eye(2)
     matrices = [identity] * n
     matrices[j] = matrix
     result = matrices[0]
     for mat in matrices[1:]:
-        result = np.kron(result, mat)
+        result = cp.kron(result, mat)
     return result
