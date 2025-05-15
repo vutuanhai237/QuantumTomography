@@ -51,12 +51,11 @@ def generate_rho_haar(n):
     rho = np.dot(np.dot(U, rho), U.conj().T)
     return rho
     
-def generate_n_qubits_rho_haar(n):
+def generate_n_qubits_rho_haar(n, num_rho = -1):
     """Generate 6^n probe states for an n-qubit system."""
     density_matrices = []
-    num_rho = 6**n
-    if (num_rho >= 10000):
-        num_rho = 10000
+    if (num_rho<0): 
+        num_rho = 6**n
     for _ in range(num_rho):
         # Construct the density matrix rho
         rho = generate_rho_haar(n)
