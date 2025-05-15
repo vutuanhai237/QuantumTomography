@@ -13,7 +13,7 @@ def calculate_adam_kraus_set(rho_list, unitary, kraus_operators, m, v, t, alpha=
 
     with tf.GradientTape() as tape:
         data = epsilon_rho.calculate_set_from_kraus_operators(tensorKraus, rho_list, unitary)
-        f = lost_func.diff_MSE(data, rho_list)
+        f = lost_func.diff_infidelity(data, rho_list)
 
     
     # Calculate the gradient
