@@ -19,12 +19,14 @@ def calculate_adam_kraus_set(rho_list, unitary, kraus_operators, m, v, t, alpha=
     # Calculate the gradient
     c = tape.gradient(f, tensorKraus)
     
-    c_tp_conj = (tf.transpose(tf.math.conj(c), perm=[0, 2, 1]))
-    tensorKraus_tp_conj = (tf.transpose(tf.math.conj(tensorKraus), perm=[0, 2, 1]))
+    c_adj = tf.linalg.adjoint(c)  # conjugate transpose
+    tensorKraus_adj = tf.linalg.adjoint(tensorKraus)
 
-    # Calculate projection
-    proj = c - tf.matmul(tensorKraus, tf.matmul(c_tp_conj, tensorKraus) + tf.matmul(tensorKraus_tp_conj, c)) / 2
+    term1 = tf.matmul(c_adj, tensorKraus)         # (batch, d, d)
+    term2 = tf.matmul(tensorKraus_adj, c)         # (batch, d, d)
+    sum_terms = term1 + term2
 
+    proj = c - 0.5 * tf.matmul(tensorKraus, sum_terms)
     # Update Adam variables
     m = beta1 * m + (1 - beta1) * proj
     v = beta2 * v + (1 - beta2) * tf.math.square(proj)

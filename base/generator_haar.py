@@ -76,7 +76,7 @@ def generate_n_qubits_rho_haar(n, num_rho = -1):
 #         kraus_ops.append(q @ np.transpose(np.conjugate(q)))
 #     return tf.convert_to_tensor(kraus_ops)
 
-def generate_kraus_operators(dim, num_operators):
+def generate_kraus_operators(dim, num_operators = -1):
     max_operators = dim**2
     num_operators = min(num_operators, max_operators)
     kraus_operators = []

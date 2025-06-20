@@ -43,11 +43,18 @@ def calculate_adam_kraus(M_list, rho_list, unitary, kraus_operators, m, v, t, al
         data = compute_simulated_data(M_list, rho_list, unitary)
         f = diff_measure_rho(data, M_list, rho_list, tensorKraus)
     
-    # Calculate the gradient
     c = tape.gradient(f, tensorKraus)
-    
+
+    c_adj = tf.linalg.adjoint(c)  # conjugate transpose
+    tensorKraus_adj = tf.linalg.adjoint(tensorKraus)
+
+    term1 = tf.matmul(c_adj, tensorKraus)         # (batch, d, d)
+    term2 = tf.matmul(tensorKraus_adj, c)         # (batch, d, d)
+    sum_terms = term1 + term2
+
+    proj = c - 0.5 * tf.matmul(tensorKraus, sum_terms)
     # Calculate projection
-    proj = c - tensorKraus @ (np.transpose(np.conjugate(c)) @ tensorKraus + np.transpose(np.conjugate(tensorKraus)) @ c) / 2
+    #proj = c - tensorKraus @ (np.transpose(np.conjugate(c)) @ tensorKraus + np.transpose(np.conjugate(tensorKraus)) @ c) / 2
 
     # Update Adam variables
     m = beta1 * m + (1 - beta1) * proj
@@ -83,7 +90,5 @@ def optimize_adam_kraus(M_list, rho_list, unitary, kraus_operators, num_qubits, 
         
         # Reshape the matrices
         kraus_operators_copy = generator_haar.normalize_kraus(kraus_operators_copy)
-        m = tf.reshape(m, (2**num_qubits, 2**num_qubits, 2**num_qubits))
-        v = tf.reshape(v, (2**num_qubits, 2**num_qubits, 2**num_qubits))
 
     return kraus_operators_copy, cost_dict

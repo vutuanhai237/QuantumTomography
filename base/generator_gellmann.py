@@ -88,3 +88,26 @@ def generate_n_qubits_rho_gellmann(eigen_gellmann, n):
         rho_list.append(rho)
 
     return rho_list
+
+def merge_projectors_into_povm(projectors, num_elements):
+    """
+    Merge a list of projectors into num_elements POVM elements.
+    Ensures the POVM sums to identity.
+    """
+    total_projectors = len(projectors)
+    assert num_elements <= total_projectors, "num_elements can't exceed total projectors"
+
+    # Partition indices of projectors into num_elements groups (roughly equal size)
+    groups = [[] for _ in range(num_elements)]
+    for idx, proj in enumerate(projectors):
+        groups[idx % num_elements].append(proj)
+
+    povm_elements = []
+    for group in groups:
+        merged = sum(group)  # sum of projectors in the group
+        povm_elements.append(merged)
+
+    sum_povm = sum(povm_elements)
+    print(f"Sum of povms: {sum_povm}")
+
+    return povm_elements
