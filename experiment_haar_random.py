@@ -1,17 +1,11 @@
+from base import generator_gellmann
 from base import generator_haar
-from base import epsilon_rho
-import numpy as np
-import tensorflow as tf
-import re
-import os
-from base import optimize_algorithm
-from base import metrics
 
-def init_experiment(n):
+def init_experiment(n, num_rho, num_kraus):
     d = 2**n
 
     # Generate 6^n density matrices
-    rho_list = generator_haar.generate_n_qubits_rho_haar(n)
+    rho_list = generator_haar.generate_n_qubits_rho_haar(n, num_rho)
     print(f"Generated {len(rho_list)} of {rho_list[0].shape} rho.")
 
     # Generate epsilon
@@ -19,11 +13,11 @@ def init_experiment(n):
     print(f"Generated {epsilon.shape} epsilon.")
 
     # Generate K list
-    kraus_operators = generator_haar.generate_kraus_operators(d, 2**n)
+    kraus_operators = generator_haar.generate_kraus_operators(d, num_kraus)
     print(f"Generated {len(kraus_operators)} of {kraus_operators[0].shape} kraus operators.")
     return rho_list, epsilon, kraus_operators
 
-
+from base import epsilon_rho
 def calculate_rho2_lists(rho_list, epsilon, kraus_operators):
     rho2 = []
     rho2_kraus = []
@@ -32,7 +26,8 @@ def calculate_rho2_lists(rho_list, epsilon, kraus_operators):
         rho2_kraus.append(epsilon_rho.calculate_from_kraus_operators(rho, kraus_operators))
     return rho2, rho2_kraus
 
-
+import numpy as np
+import tensorflow as tf
 def write_to_file(filename, data):
     """Write TensorFlow tensor data to a text file without truncation."""
     tensor_data = data.numpy() if isinstance(data, tf.Tensor) else data
@@ -48,7 +43,7 @@ def write_to_file(filename, data):
             f.write(str(data))
 
 
-
+import re
 def parse_tensor_from_file(file_path, shape):
     with open(file_path, 'r') as file:
         # Read the content of the file
@@ -72,8 +67,10 @@ def parse_tensor_from_file(file_path, shape):
 
     return tf_tensor
 
-
-#1 - 0.05, 2 - 0.1, 3 - 0.01, 4 - 0.01, 5 - 0.05
+import os
+from base import optimize_algorithm
+from base import metrics
+#1 - 0.05, 2 - 0.1, 3 - 0.01
 experiment_folder = 'results/experiment_new/haar_random_temp'
 
 physical_devices = tf.config.list_physical_devices('GPU')
@@ -81,8 +78,10 @@ if physical_devices:
     print(f"TensorFlow is using the following GPU(s): {physical_devices}")
 else:
     print("No GPU found. TensorFlow will use CPU.")
-    
-for num_qubits in range(4, 5):
+
+num_rhos = [-1, 3**1, 3**2, 3**3, 3**4, 3**5, 3**6, 800, 800, 800, 800]   
+alphas = [-1, 0.01, 0.01, 0.008, 0.005, 0.004, 0.003, 0.002, 0.0025, 0.0025, 0.0025]   
+for num_qubits in range(8, 11):
     if (experiment_folder == ''):
         break
     else:
@@ -92,19 +91,22 @@ for num_qubits in range(4, 5):
     print(f"N={num_qubits}")
 
     #-----Init experiment-----
-    rho_list, epsilon, kraus_operators = init_experiment(num_qubits)
+    rho_list, epsilon, kraus_operators = init_experiment(num_qubits, num_rhos[num_qubits], 1)
 
     #-----Learn kraus operators-----
-    kraus_operators_res, cost_dict = optimize_algorithm.optimize_adam_kraus_set(rho_list, epsilon, kraus_operators, num_qubits, 0.007, num_loop=200)
+    kraus_operators_res, cost_dict = optimize_algorithm.optimize_adam_kraus_set(rho_list, epsilon, kraus_operators, num_qubits, alphas[num_qubits], num_loop=200)
     
     #-----Calculate result data-----
     rho3_list = epsilon_rho.calculate_set_from_kraus_operators(kraus_operators_res, rho_list, epsilon)
     rho2_list, rho2_kraus_list = calculate_rho2_lists(rho_list, epsilon, kraus_operators_res)
-    
+
     mean_fidelity_rho_rho3 = metrics.mean_fidelity(rho3_list, rho_list)
     mean_fidelity_rho2_rho2 = metrics.mean_fidelity(rho2_kraus_list, rho2_list)
 
-    #-----Write to folder-----
+    print(kraus_operators_res)
+    print(epsilon)
+    print(mean_fidelity_rho_rho3)
+    # #-----Write to folder-----
     write_to_file(os.path.join(write_folder, "rho_list.txt"), rho_list)
     write_to_file(os.path.join(write_folder,"epsilon.txt"), epsilon)
     
@@ -119,6 +121,10 @@ for num_qubits in range(4, 5):
 
     np.set_printoptions(threshold=np.inf)
     write_to_file(os.path.join(write_folder,"kraus_operators.txt"), kraus_operators_res)
+    np.set_printoptions(threshold=1000)
+
+
+# 6^n rho
 
     
     
