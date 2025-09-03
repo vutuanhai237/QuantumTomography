@@ -6,6 +6,7 @@ import cupy as cp
 def mean_fidelity(rho_f_list, rho_list):
     """Compute mean(Fidelity) metric"""
 
+    #fidelity_sum = tf.constant(0.0, dtype=tf.complex64)
     fidelity_sum = tf.constant(0.0, dtype=tf.complex128)
 
     for rho, rho_f in zip(rho_list, rho_f_list):
@@ -69,16 +70,16 @@ def trace_Pauli(rho, qubit_index, pauli_matrix):
     """
     
     # Ensure the density matrix is a NumPy array
-    rho = cp.array(rho, dtype=cp.complex128)
+    rho = np.array(rho, dtype=np.complex128)
     
     
     # Get number of qubits (assuming rho is a 2^n x 2^n matrix)
-    n = int(cp.log2(rho.shape[0]))
+    n = int(np.log2(rho.shape[0]))
 
     # Create the full operator that applies the Pauli-Z to the specific qubit
     Z_1 = generator.kron_n_identity(n, qubit_index, pauli_matrix)
     
     # Calculate the trace
-    trace_result = cp.trace(Z_1 @ rho)  # Matrix multiplication
+    trace_result = np.trace(Z_1 @ rho)  # Matrix multiplication
     return trace_result
 

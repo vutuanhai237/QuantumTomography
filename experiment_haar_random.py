@@ -4,17 +4,21 @@ from base import generator_haar
 def init_experiment(n, num_rho, num_kraus):
     d = 2**n
 
-    # Generate 6^n density matrices
-    rho_list = generator_haar.generate_n_qubits_rho_haar(n, num_rho)
-    print(f"Generated {len(rho_list)} of {rho_list[0].shape} rho.")
-
     # Generate epsilon
     epsilon = generator_haar.random_unitary(d)
+    #epsilon = epsilon.astype(np.complex64)
     print(f"Generated {epsilon.shape} epsilon.")
 
     # Generate K list
     kraus_operators = generator_haar.generate_kraus_operators(d, num_kraus)
+    #kraus_operators = [tf.cast(K, tf.complex64) for K in kraus_operators]
     print(f"Generated {len(kraus_operators)} of {kraus_operators[0].shape} kraus operators.")
+
+    # Generate 6^n density matrices
+    rho_list = generator_haar.generate_n_qubits_rho_haar(n, num_rho)
+    print(f"Generated {len(rho_list)} of {rho_list[0].shape} rho.")
+
+    
     return rho_list, epsilon, kraus_operators
 
 from base import epsilon_rho
@@ -80,8 +84,8 @@ else:
     print("No GPU found. TensorFlow will use CPU.")
 
 num_rhos = [-1, 3**1, 3**2, 3**3, 3**4, 3**5, 3**6, 800, 800, 800, 800]   
-alphas = [-1, 0.01, 0.01, 0.008, 0.005, 0.004, 0.003, 0.002, 0.0025, 0.0025, 0.0025]   
-for num_qubits in range(8, 11):
+alphas = [-1, 0.01, 0.01, 0.008, 0.005, 0.004, 0.003, 0.002, 0.0015, 0.0013, 0.001]   
+for num_qubits in range(9, 11):
     if (experiment_folder == ''):
         break
     else:

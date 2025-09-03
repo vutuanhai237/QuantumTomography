@@ -10,22 +10,22 @@ def calculate_dephasing(input_rho, num_qubits: int, gamma: float): #for verifica
     # Convert DensityMatrix to numpy array
     rho = input_rho.data
     # Define the Pauli-Z matrix
-    sigma_z = cp.array([[1, 0], [0, -1]])
+    sigma_z = np.array([[1, 0], [0, -1]])
 
     # Calculate the factors
-    alpha = (1 + cp.sqrt(1 - gamma)) * 1/2
-    beta = (1 - cp.sqrt(1 - gamma)) * 1/2
+    alpha = (1 + np.sqrt(1 - gamma)) * 1/2
+    beta = (1 - np.sqrt(1 - gamma)) * 1/2
     
     # n qubits => qubit thứ n => I @ I @ .... sigma_z (n) @....I
     # Loop for multiple qubits
     for i in range(num_qubits):
         # Create the tensor product of Pauli-Z matrices for all qubits
-        sigma_z_i = cp.eye(1)
+        sigma_z_i = np.eye(1)
         for j in range(num_qubits):
             if j == i:
-                sigma_z_i = cp.kron(sigma_z_i, sigma_z)
+                sigma_z_i = np.kron(sigma_z_i, sigma_z)
             else:
-                sigma_z_i = cp.kron(sigma_z_i, cp.eye(2))
+                sigma_z_i = np.kron(sigma_z_i, np.eye(2))
         
         # Apply the dephasing formula
         rho = alpha * rho + beta * (sigma_z_i @ rho @ sigma_z_i)

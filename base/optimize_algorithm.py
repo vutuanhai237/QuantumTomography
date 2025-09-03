@@ -6,6 +6,8 @@ def optimize_adam_kraus_set(rho_list, unitary, kraus_operators, num_qubits, alph
     kraus_operators_copy = tf.identity(kraus_operators)
     
     # Initialize m, v to zero matrices
+    # m = tf.zeros_like(kraus_operators_copy, dtype=tf.complex64)
+    # v = tf.zeros_like(kraus_operators_copy, dtype=tf.complex64)
     m = tf.zeros_like(kraus_operators_copy, dtype=tf.complex128)
     v = tf.zeros_like(kraus_operators_copy, dtype=tf.complex128)
     

@@ -58,6 +58,7 @@ def generate_n_qubits_rho_haar(n, num_rho = -1):
         num_rho = 6**n
     for _ in range(num_rho):
         # Construct the density matrix rho
+        # rho = generate_rho_haar(n).astype(np.complex64)
         rho = generate_rho_haar(n)
         
         # Append the density matrix to the list

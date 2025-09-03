@@ -5,11 +5,18 @@ from . import epsilon_rho as epsilon_rho
 import cupy as cp
 
 def calculate_adam_kraus_set(rho_list, unitary, kraus_operators, m, v, t, alpha=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8, mode = 'fidelity'):
-    tensorKraus = tf.Variable(kraus_operators, dtype=tf.complex128)
+    # tensorKraus = tf.Variable(kraus_operators, dtype=tf.complex64)
     
+    # beta1 = tf.constant(beta1, dtype=tf.complex64)
+    # beta2 = tf.constant(beta2, dtype=tf.complex64)
+    # t = tf.constant(t, dtype=tf.complex64)
+    
+    tensorKraus = tf.Variable(kraus_operators, dtype=tf.complex128)
+        
     beta1 = tf.constant(beta1, dtype=tf.complex128)
     beta2 = tf.constant(beta2, dtype=tf.complex128)
     t = tf.constant(t, dtype=tf.complex128)
+
 
     with tf.GradientTape() as tape:
         data = epsilon_rho.calculate_set_from_kraus_operators(tensorKraus, rho_list, unitary)
@@ -47,7 +54,7 @@ def calculate_adam_unitary_dagger_set(rho_list, rho2_list, unitary, m, v, t, alp
 
     with tf.GradientTape() as tape:
         data = epsilon_rho.calculate_set_from_unitary_dagger(tensorUnitary, rho2_list)
-        f = lost_func.diff_MSE(data, rho_list)
+        f = lost_func.diff_infidelity(data, rho_list)
     
     # Calculate the gradient
     c = tape.gradient(f, tensorUnitary)
