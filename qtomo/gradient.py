@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-def calculate_gradient(loss_fn: callable, tensor: tf.Variable) -> tf.Tensor:
+def riemann(loss_fn: callable, tensor: tf.Variable) -> tf.Tensor:
     """
     Calculate the projected gradient by computing loss inside GradientTape.
 
