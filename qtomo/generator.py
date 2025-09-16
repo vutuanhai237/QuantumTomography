@@ -125,22 +125,24 @@ def probe_states_gellmann(eigen_gellmann: list[tuple[np.ndarray, np.ndarray]], n
 # 4. Haar / Random Unitary Gen   #
 # ============================== #
 
-def random_unitary(d: int) -> np.ndarray:
+def random_unitary(n: int) -> np.ndarray:
     """
-    Generate a random unitary matrix of size d using QR decomposition.
+    Generate a random unitary matrix of for n qubits using QR decomposition.
     """
+    d = 2 ** n
     rand_mat = np.random.randn(d, d) + 1j * np.random.randn(d, d)
     Q, _ = qr(rand_mat)
     return Q
 
-def haar(d: int) -> np.ndarray:
+def haar(n: int) -> np.ndarray:
     """
-    Generates a Haar-random unitary matrix of size d x d.
+    Generates a Haar-random unitary matrix for n qubits.
     The function creates a random matrix, performs a QR decomposition,
     and scales it to ensure that the matrix is unitary.
     
     Reference: https://arxiv.org/pdf/math-ph/0609050.pdf
     """
+    d = 2 ** n
     z = (np.random.randn(d, d) + 1j * np.random.randn(d, d)) / np.sqrt(2)
     Q, R = qr(z)
     D = np.diag(R)
@@ -158,7 +160,7 @@ def haar_probe_state(n: int) -> np.ndarray:
     d = 2 ** n
     psi = np.random.randn(d) + 1j * np.random.randn(d)
     psi /= np.linalg.norm(psi)
-    U = haar(d)
+    U = haar(n)
     rho = U @ np.outer(psi, psi.conj()) @ U.conj().T
     return rho
 
@@ -175,16 +177,17 @@ def haar_probe_states(n: int, num_rho: int = -1) -> list[np.ndarray]:
 # 6. Kraus Operator Generator #
 # ========================== #
 
-def kraus_operators(dim: int, num_operators: int = -1) -> list[np.ndarray]:
+def kraus_operators(n: int, num_operators: int = -1) -> list[np.ndarray]:
     """
     Generate a list of random Kraus operators (unitary matrices).
     Automatically normalize them to satisfy CPTP condition.
     """
+    dim = 2 ** n
     max_ops = dim ** 2
     if num_operators < 0 or num_operators > max_ops:
         num_operators = max_ops
 
-    kraus_ops = [random_unitary(dim) for _ in range(num_operators)]
+    kraus_ops = [random_unitary(n) for _ in range(num_operators)]
     return utils.normalize_kraus(kraus_ops)
 
 # ========================== #
