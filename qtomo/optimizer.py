@@ -19,11 +19,19 @@ class Optimizer:
             alpha (float): Learning rate.
         """
         self.alpha = alpha
-    def step_and_cost(self, objective_fn, theta, grad_fn):
+    def step_and_cost(self, 
+                      param: tf.Variable, 
+                      loss_fn: callable, 
+                      grad_fn: callable,
+                     ):
         pass
     
 class SGDOptimizer(Optimizer):
-    def step_and_cost(self, objective_fn, theta, grad_fn):
+    def step_and_cost(self, 
+                      param: tf.Variable, 
+                      loss_fn: callable, 
+                      grad_fn: callable,
+                     ):
         pass
     
 class AdamOptimizer(Optimizer):
@@ -41,7 +49,7 @@ class AdamOptimizer(Optimizer):
     def step_and_cost(self, 
                       param: tf.Variable, 
                       loss_fn: callable, 
-                      grad_fn: callable = gradient.calculate_gradient
+                      grad_fn: callable,
                      ) -> tuple[tf.Variable, tf.Tensor]:
         """
         Perform one Adam optimization step with projection on the parameter.
