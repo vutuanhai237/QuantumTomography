@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from qtomo.tomo import KrausTomography
 from functools import partial
 import qtomo.quantum_ops as quantum_ops
