@@ -13,7 +13,8 @@ def normalize_kraus(kraus_operators):
 
 def normalize_unitary(matrix):  
     # Perform QR decomposition to get the unitary matrix Q
-    Q, _ = np.linalg.qr(matrix)
+    Q, _ = tf.linalg.qr(matrix)
+
     return Q
 
 def diagonalize_matrices(matrices):
