@@ -4,18 +4,18 @@ import tensorflow as tf
 from qtomo import generator
 
 
-def dephasing_channel(input_rho, num_qubits: int, gamma: float) -> np.ndarray:
+def dephasing_channel(input_rho, gamma: float) -> np.ndarray:
     """
     Apply dephasing noise channel on the input density matrix.
 
     Args:
         input_rho: Density matrix object with `.data` attribute (numpy array).
-        num_qubits: Number of qubits in the system.
         gamma: Dephasing parameter in [0,1].
 
     Returns:
         Noisy density matrix as a numpy array after dephasing.
     """
+    num_qubits = int(np.log2(input_rho.shape[0]))
     rho = input_rho.data
     sigma_z = np.array([[1, 0], [0, -1]])
     alpha = 0.5 * (1 + np.sqrt(1 - gamma))
