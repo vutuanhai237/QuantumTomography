@@ -31,9 +31,27 @@ class SGDOptimizer(Optimizer):
                       param: tf.Variable, 
                       loss_fn: callable, 
                       grad_fn: callable,
-                     ):
-        pass
-    
+                     ) -> tuple[tf.Variable, tf.Tensor]:
+        """
+        Perform one step of stochastic gradient descent (SGD).
+
+        Args:
+            param (tf.Variable): Parameter(s) to optimize.
+            loss_fn (callable): Function that computes the scalar loss given parameters.
+            grad_fn (callable): Function that computes projected gradients of loss wrt parameters.
+
+        Returns:
+            tuple:
+                - Updated parameter(s).
+                - Scalar loss value before update.
+        """
+        # Compute gradient and loss
+        proj_grad, loss = grad_fn(loss_fn, param)
+
+        # Update parameter (basic SGD rule)
+        update = param - self.alpha * proj_grad
+
+        return update, loss
 class AdamOptimizer(Optimizer):
     def __init__(self, alpha=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8):
         self.alpha = alpha
