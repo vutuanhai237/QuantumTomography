@@ -5,13 +5,18 @@ on:
     branches: [main, master]
   pull_request:
     branches: [main, master]
-
+    
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
+
+    - name: Clone qoop dependency
+      run: |
+        rm -rf qoop
+        git clone https://github.com/vutuanhai237/qoop.git
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -21,7 +26,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install -r requirements.txt
+        pip install -e ./qoop
+        pip install -e .
 
     - name: Run tests with pytest
+      env:
+        PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/qoop
       run: pytest test --disable-warnings -v
