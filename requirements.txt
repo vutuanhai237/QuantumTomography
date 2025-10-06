@@ -1,4 +1,7 @@
+numpy
+scipy
+tensorflow
 qiskit
 matplotlib
-tdqm
+tqdm
 pytest
