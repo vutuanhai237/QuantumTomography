@@ -30,7 +30,7 @@ def test_choi_tomography_fixed_dephasing():
     tomog.probe_rhos = fixed_probe_states()
 
     logger.info(f"Using gamma = {gamma}, epochs = {max_epochs}")
-    optimizer_obj = optimizer.AdamOptimizer(alpha=0.05)
+    optimizer_obj = optimizer.AdamOptimizer(alpha=0.03)
 
     def data_process(rho_set, unitary):
         return [

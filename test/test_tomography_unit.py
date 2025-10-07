@@ -7,10 +7,6 @@ from qtomo.tomography import KrausTomography, ChoiTomography
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# --------------------------
-# Fixtures: helper functions to create mock data or objects used across tests
-# --------------------------
-
 @pytest.fixture
 def mock_optimizer():
     class MockOptimizer:
@@ -42,9 +38,9 @@ def mock_loss_fn():
     return _fn
 
 
-# --------------------------
+# =================================
 # Tests for KrausTomography
-# --------------------------
+# =================================
 
 def test_kraus_tomography_init():
     # Check that KrausTomography object is correctly initialized with the right number of states and operators
@@ -85,9 +81,9 @@ def test_kraus_evaluate_output():
     assert score == 1.0  # metric returns correct value
 
 
-# --------------------------
+# =================================
 # Tests for ChoiTomography
-# --------------------------
+# =================================
 
 def test_choi_tomography_init():
     # Check initialization of ChoiTomography object

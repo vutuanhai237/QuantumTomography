@@ -43,7 +43,7 @@ def test_kraus_tomography_learns_multiple_epsilons(epsilon):
         ]
 
     # Adam optimizer
-    optimizer_obj = optimizer.AdamOptimizer(alpha=0.01)
+    optimizer_obj = optimizer.AdamOptimizer(alpha=0.05)
 
     # Train
     final_kraus, loss_dict = tomog.fit(
