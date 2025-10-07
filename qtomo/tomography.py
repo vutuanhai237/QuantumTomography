@@ -3,8 +3,6 @@
 # and evaluation against ideal target processes.
 
 from qtomo import generator
-from qtomo import gradient
-from qtomo import metric
 from qtomo.optimizer import Optimizer
 from qtomo import utils
 from qtomo import quantum_ops

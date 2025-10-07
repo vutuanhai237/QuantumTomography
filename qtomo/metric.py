@@ -54,12 +54,16 @@ def mean_infidelity(rho_f_list: DensityMatrixList, rho_list: DensityMatrixList) 
     fidelity_sum = tf.constant(0.0, dtype=tf.complex128)
 
     for rho, rho_f in zip(rho_list, rho_f_list):
-        overlap = tf.matmul(rho_f, rho)
-        fidelity = tf.math.square(tf.linalg.trace(overlap))
+        sqrt_rho = tf.linalg.sqrtm(rho)
+        intermediate = sqrt_rho @ rho_f @ sqrt_rho
+
+        fidelity = tf.linalg.trace(tf.linalg.sqrtm(intermediate)) ** 2
         fidelity_sum += fidelity
 
     fidelity_avg = fidelity_sum / len(rho_list)
+
     return 1 - fidelity_avg
+
 
 # ----------------------------------------
 # 2. Diff between two matrices
@@ -77,7 +81,8 @@ def compilation_trace_fidelity(rho: DensityMatrix, sigma: DensityMatrix) -> tf.T
         tf.Tensor: Scalar tensor fidelity value (0 to 1).
     """
     f = (tf.linalg.sqrtm(rho)) @ sigma @ (tf.linalg.sqrtm(rho))
-    return tf.linalg.trace(f)
+    fidelity = tf.math.square(tf.linalg.trace(tf.linalg.sqrtm(f)))
+    return fidelity
 
 def frobenius_norm(rho: DensityMatrix, sigma: DensityMatrix) -> tf.Tensor:
     """
