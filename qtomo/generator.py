@@ -194,33 +194,33 @@ def kraus_operators(n: int, num_operators: int = -1) -> list[np.ndarray]:
 # 7. Choi Matrix Generator   #
 # ========================== #
 
-def choi_matrix(U: np.ndarray, d: int) -> np.ndarray:
-    """
-    Construct the Choi matrix from a unitary U acting on d-dimensional space.
-    """
-    choi = np.zeros((d ** 2, d ** 2), dtype=complex)
-    for i in range(d):
-        for j in range(d):
-            ketbra = np.outer(np.eye(d)[i], np.eye(d)[j].conj())
-            Phi = U @ ketbra @ U.conj().T
-            kron_ij = np.kron(np.eye(d)[i], np.eye(d)[j].conj())
-            choi += kron_ij @ Phi
-    return choi
+# def choi_matrix(U: np.ndarray, d: int) -> np.ndarray:
+#     """
+#     Construct the Choi matrix from a unitary U acting on d-dimensional space.
+#     """
+#     choi = np.zeros((d ** 2, d ** 2), dtype=complex)
+#     for i in range(d):
+#         for j in range(d):
+#             ketbra = np.outer(np.eye(d)[i], np.eye(d)[j].conj())
+#             Phi = U @ ketbra @ U.conj().T
+#             kron_ij = np.kron(np.eye(d)[i], np.eye(d)[j].conj())
+#             choi += kron_ij @ Phi
+#     return choi
 
 # ========================== #
 # 8. Quantum Circuit Gen     #
 # ========================== #
 
-from qoop.core import ansatz
+# from qoop.core import ansatz
 
-def asigned_circuit(num_qubits: int):
-    """
-    Create a parameterized quantum circuit (ansatz) for given number of qubits.
-    Parameters are randomly initialized.
-    """
-    circuit = ansatz.graph(num_qubits=num_qubits)
-    x0 = 2 * np.pi * np.random.rand(circuit.num_parameters)
-    return circuit.assign_parameters(dict(zip(circuit.parameters, x0)))
+# def asigned_circuit(num_qubits: int):
+#     """
+#     Create a parameterized quantum circuit (ansatz) for given number of qubits.
+#     Parameters are randomly initialized.
+#     """
+#     circuit = ansatz.graph(num_qubits=num_qubits)
+#     x0 = 2 * np.pi * np.random.rand(circuit.num_parameters)
+#     return circuit.assign_parameters(dict(zip(circuit.parameters, x0)))
 
 def kron_insert(n: int, j: int, matrix: np.ndarray) -> np.ndarray:
     """

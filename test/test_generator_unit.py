@@ -15,6 +15,7 @@ from qtomo.generator import (
     random_unitary,
     haar,
     haar_probe_state,
+    haar_probe_states,
     kraus_operators,
     kron_insert
 )
@@ -36,6 +37,14 @@ def test_gellmann_shape_and_count():
         logger.info(f"Gell-Mann matrix {i} shape: {m.shape}")
         assert m.shape == (d, d)
         assert np.allclose(m.conj().T, m)  # Hermitian
+
+def test_gellmann_linear_independence():
+    d = 3
+    gm = gellmann_matrices(d)
+    gm_flat = [m.flatten() for m in gm]
+    matrix_stack = np.stack(gm_flat)
+    rank = np.linalg.matrix_rank(matrix_stack)
+    assert rank == len(gm), "Gell-Mann matrices should be linearly independent"
 
 def test_probe_states_gellmann_output_shape():
     """Ensure probe_states_gellmann returns 6^n density matrices with proper normalization."""
@@ -67,6 +76,11 @@ def test_probe_states_gellmann_real_values():
 # ============================
 # Test Measurement Projectors
 # ============================
+def test_normalized_projectors():
+    proj = measurement_projectors(2)
+    total = sum(proj)
+    identity = np.eye(4)
+    assert_allclose(total, identity, atol=1e-6)
 
 def test_measurement_projectors_trace_sum():
     projectors = measurement_projectors(1)
@@ -157,6 +171,11 @@ def test_haar_unitary_unitarity():
     logger.info(f"Haar unitary U^dagger U:\n{U.conj().T @ U}")
     assert_allclose(U.conj().T @ U, identity, atol=1e-6)
 
+def test_haar_unitary_determinant():
+    U = haar(2)
+    det = np.linalg.det(U)
+    assert np.isclose(np.abs(det), 1, atol=1e-6), "Determinant of unitary must be on unit circle"
+
 # ========================
 # Test Haar Probe States  
 # ========================
@@ -167,6 +186,15 @@ def test_haar_probe_state_properties():
     assert rho.shape == (2, 2)
     assert_allclose(np.trace(rho), 1, atol=1e-6)
     assert np.allclose(rho, rho.conj().T)  # Hermitian
+
+@pytest.mark.parametrize("n", [1, 2])
+def test_haar_probe_states_psd(n):
+    rhos = haar_probe_states(n, num_rho=10)
+    for rho in rhos:
+        eigvals = np.linalg.eigvalsh(rho)
+        assert np.all(eigvals >= -1e-10), "Probe state must be PSD"
+        assert np.allclose(rho, rho.conj().T), "Probe state must be Hermitian"
+        assert np.isclose(np.trace(rho), 1), "Probe state must be trace 1"
 
 # =======================
 # Test Kraus Operators   
