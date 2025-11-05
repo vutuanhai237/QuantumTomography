@@ -1,3 +1,5 @@
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/vutuanhai237/QuantumTomography)
+
 ## I. Overview
 
 Quantum process tomography (QPT) is a foundational technique for characterizing unknown quantum operations (gates or channels). However, traditional QPT approaches often struggle with scalability, excessive resource demands, and sensitivity to noise.
@@ -12,6 +14,8 @@ This repository aims to provide an implementation of the universal-compilation-b
 
 **Paper:** Advancing quantum process tomography through universal compilation
 https://arxiv.org/abs/2504.14958
+
+**Generated documents:** https://deepwiki.com/vutuanhai237/QuantumTomography
 
 ## II. Installation & Setup
 
